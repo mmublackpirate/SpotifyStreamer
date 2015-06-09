@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
@@ -27,6 +28,7 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
   public static final int FOOTER_VIEW = 101;
   private boolean progressBarIsShown = true;
   private ClickListener itemClickListener;
+  private int checkItemPos = -100;
   public ArtistSearchAdapter(){
   }
 
@@ -51,6 +53,15 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     this.artists = new ArrayList<>();
     notifyDataSetChanged();
   }
+
+  public void setCheckedItem(int position){
+    this.checkItemPos = position;
+    notifyDataSetChanged();
+  }
+
+  public int getCheckItem(){
+    return this.checkItemPos;
+  }
   @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     context = parent.getContext();
     View view;
@@ -68,10 +79,16 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
   @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     if(holder instanceof ArtistSearchViewHolder){
+      FrameLayout checkBackground = ((ArtistSearchViewHolder) holder).checkBackground;
       TextView artistName = ((ArtistSearchViewHolder) holder).artistName;
       ImageView artistImage = ((ArtistSearchViewHolder) holder).artistImage;
       artistName.setText(artists.get(position).name);
       List<Image> images = artists.get(position).images;
+      if(checkItemPos==position){
+        checkBackground.setForeground(context.getResources().getDrawable(R.drawable.check_background));
+      }else{
+        checkBackground.setForeground(null);
+      }
       if(images.size()>=2)
       Glide.with(context)
           .load(artists.get(position).images.get(1).url)
@@ -107,6 +124,7 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
       View.OnClickListener {
     @InjectView(R.id.artist_search_image) ImageView artistImage;
     @InjectView(R.id.artist_search_name) TextView artistName;
+    @InjectView(R.id.checkBackground) FrameLayout checkBackground;
 
     public ArtistSearchViewHolder(View itemView) {
       super(itemView);

@@ -8,10 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.Optional;
 import com.yemyatthu.spotifystreamer.adapter.ArtistSearchAdapter;
 import com.yemyatthu.spotifystreamer.controller.ArtistListStateFragment;
 import com.yemyatthu.spotifystreamer.listener.EndlessRecyclerOnScrollListener;
@@ -34,13 +36,13 @@ public class SearchActivity extends AppCompatActivity
     implements android.support.v7.widget.SearchView.OnQueryTextListener,
     ArtistSearchAdapter.ClickListener {
 
+  private static final String LIST_STATE_FRAGEMENT = "artist_list_state_fragment";
   @InjectView(R.id.artist_recycler_view) RecyclerView artistRecyclerView;
   @InjectView(R.id.toolbar) Toolbar toolbar;
   @InjectView(R.id.toolbar_search) SearchView searchView;
   @InjectView(R.id.search_progress_bar) ProgressBar searchProgressBar;
   @InjectView(R.id.empty_view) TextView emptyText;
-
-  private static final String LIST_STATE_FRAGEMENT = "artist_list_state_fragment";
+  @Optional @InjectView(R.id.search_container) FrameLayout searchContainer;
   private SpotifyApi api;
   private SpotifyService spotify;
   private ArtistsPager results;
@@ -50,13 +52,30 @@ public class SearchActivity extends AppCompatActivity
   private String queryStr;
   private List<Artist> totalArtists;
   private ArtistListStateFragment artistListStateFragment;
+  private boolean isTablet;
+  private TopTracksFragment topTracksFragment;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_search);
     ButterKnife.inject(this);
     setSupportActionBar(toolbar);
-    setSupportActionBar(toolbar);
+    if (searchContainer != null) {
+      isTablet = true;
+
+      //if its' tablet, add a dummy fragment to it.
+      topTracksFragment =
+          (TopTracksFragment) getSupportFragmentManager().findFragmentById(R.id.search_container);
+
+      if (topTracksFragment == null) {
+        topTracksFragment = TopTracksFragment.getNewInstance("", "",true);
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.search_container, topTracksFragment)
+            .commit();
+      }
+    } else {
+      isTablet = false;
+    }
     artistListStateFragment =
         (ArtistListStateFragment) getSupportFragmentManager().findFragmentByTag(
             LIST_STATE_FRAGEMENT);
@@ -66,6 +85,7 @@ public class SearchActivity extends AppCompatActivity
           .add(artistListStateFragment, LIST_STATE_FRAGEMENT)
           .commit();
     }
+
     api = new SpotifyApi();
     spotify = api.getService();
     offset = 0;
@@ -113,6 +133,7 @@ public class SearchActivity extends AppCompatActivity
         artistSearchAdapter.setArtists(totalArtists);
         ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).scrollToPositionWithOffset(
             artistListStateFragment.getLastScrollPosition(), artistRecyclerView.getChildCount());
+        artistSearchAdapter.setCheckedItem(artistListStateFragment.getCheckPosition());
         artistListStateFragment.clearArtists(); // clear data from headless fragments so that configuration changes and normal query changes don't mix
       } else {
 
@@ -131,6 +152,14 @@ public class SearchActivity extends AppCompatActivity
                   totalArtists.addAll(results.artists.items);
                   artistRecyclerView.setVisibility(View.VISIBLE);
                   artistSearchAdapter.setArtists(results.artists.items);
+                  if(isTablet) {
+                    artistSearchAdapter.setCheckedItem(0);
+                    topTracksFragment = TopTracksFragment.getNewInstance(totalArtists.get(0).id,
+                        totalArtists.get(0).name, true);
+                    getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.search_container, topTracksFragment)
+                        .commit();
+                  }
                 }
               }
             });
@@ -185,16 +214,23 @@ public class SearchActivity extends AppCompatActivity
   }
 
   @Override public void onItemClick(View view, int position) {
-    Intent topTrackIntent = new Intent(SearchActivity.this, TopTracksActivity.class);
-    topTrackIntent.putExtra(TopTracksActivity.ARTIST_ID, totalArtists.get(position).id);
-    topTrackIntent.putExtra(TopTracksActivity.ARTIST_NAME, totalArtists.get(position).name);
-    startActivity(topTrackIntent);
+    if(isTablet){
+      artistSearchAdapter.setCheckedItem(position);
+      topTracksFragment = TopTracksFragment.getNewInstance(totalArtists.get(position).id,totalArtists.get(position).name,true);
+      getSupportFragmentManager().beginTransaction().replace(R.id.search_container,topTracksFragment).commit();
+    }else {
+      Intent topTrackIntent = new Intent(SearchActivity.this, TopTracksActivity.class);
+      topTrackIntent.putExtra(TopTracksActivity.ARTIST_ID, totalArtists.get(position).id);
+      topTrackIntent.putExtra(TopTracksActivity.ARTIST_NAME, totalArtists.get(position).name);
+      startActivity(topTrackIntent);
+    }
   }
 
   @Override protected void onDestroy() {
     super.onDestroy();
     artistListStateFragment.setArtists(artistSearchAdapter.getArtists());
-    artistListStateFragment.setLastScrollPosition(
-        ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition());
+      artistListStateFragment.setLastScrollPosition(
+          ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition());
+    artistListStateFragment.setCheckPosition(artistSearchAdapter.getCheckItem());
   }
 }

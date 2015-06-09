@@ -12,6 +12,7 @@ import kaaes.spotify.webapi.android.models.Artist;
 public class ArtistListStateFragment extends Fragment {
   private List<Artist> artists;
   private int lastScrollPosition;
+  private int checkPosition;
 
   public ArtistListStateFragment() {
   }
@@ -21,6 +22,7 @@ public class ArtistListStateFragment extends Fragment {
     setRetainInstance(true);
     artists = new ArrayList<>();
     lastScrollPosition = 0;
+    checkPosition = -100;
   }
 
   public void setArtists(List<Artist> artists){
@@ -42,4 +44,13 @@ public class ArtistListStateFragment extends Fragment {
   public void setLastScrollPosition(int lastScrollPosition) {
     this.lastScrollPosition = lastScrollPosition;
   }
+
+  public int getCheckPosition() {
+    return this.checkPosition;
+  }
+
+  public void setCheckPosition(int checkPosition) {
+    this.checkPosition = checkPosition;
+  }
+
 }
