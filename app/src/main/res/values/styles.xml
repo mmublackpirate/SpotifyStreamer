@@ -7,6 +7,17 @@
     <item name="colorAccent">@color/accentColor</item>
     <item name="colorPrimaryDark">@color/primaryDarkerColor</item>
     <item name="searchViewStyle">@style/Widget.AppCompat.Light.SearchView</item>
+    <item name="android:seekBarStyle">@style/SeekBarAppTheme</item>
   </style>
 
+  <style name="SeekBarAppTheme" parent="android:Widget.SeekBar">
+    <item name="android:progressDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_dark</item>
+    <item name="android:indeterminateDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_dark</item>
+    <item name="android:minHeight">13dip</item>
+    <item name="android:maxHeight">13dip</item>
+    <item name="android:thumb">@drawable/apptheme_scrubber_control_selector_holo_dark</item>
+    <item name="android:thumbOffset">16dip</item>
+    <item name="android:paddingLeft">16dip</item>
+    <item name="android:paddingRight">16dip</item>
+  </style>
 </resources>

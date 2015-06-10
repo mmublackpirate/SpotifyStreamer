@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:weightSum="3">
+    android:background="@color/backgroundColor"
+    android:orientation="horizontal">
   <LinearLayout
-      android:layout_width="0dp"
+      android:layout_width="320dp"
       android:layout_height="match_parent"
-      android:orientation="vertical"
-      android:layout_weight="1">
+      android:orientation="vertical">
 
   <include layout="@layout/search_toolbar"/>
     <FrameLayout android:layout_width="match_parent"
-        android:layout_height="match_parent">w
+        android:background="@color/background_material_light"
+        android:layout_height="match_parent">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/artist_recycler_view"
         android:layout_width="match_parent"
@@ -28,6 +27,7 @@
         android:layout_gravity="center"/>
     <TextView
         android:id="@+id/empty_view"
+        style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
   </LinearLayout>
   <FrameLayout
       android:id="@+id/search_container"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_weight="2"/>
 </LinearLayout>
