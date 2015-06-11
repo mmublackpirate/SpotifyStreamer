@@ -8,4 +8,6 @@
   <string name="top_tracks_empty">No top tracks for selected artist</string>
   <string name="prepare_filter">com.yemyatthu.spotifystreamer.service.audioservice.onprepared
   </string>
+  <string name="complete_filter">com.yemyatthu.spotifystreamer.service.complete_filter</string>
+  <string name="error_filter">com.yemyatthu.spotifystreamer.error_filter</string>
 </resources>

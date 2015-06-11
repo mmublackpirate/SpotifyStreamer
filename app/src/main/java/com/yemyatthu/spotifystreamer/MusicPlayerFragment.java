@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.bumptech.glide.Glide;
@@ -74,10 +76,11 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
   private ServiceConnection musicConnection = new ServiceConnection() {
     @Override public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
       AudioService.AudioBinder binder = (AudioService.AudioBinder) iBinder;
-      audioService = binder.getService();
-      musicBound = true;
-      audioService.getUrl(previewUrl); // Give the service url to work
-      audioService.playSong(); // start playing a new song
+      if(audioService==null) {
+        audioService = binder.getService();
+        musicBound = true;
+        playSongFromUrl();
+      }
     }
 
     @Override public void onServiceDisconnected(ComponentName componentName) {
@@ -89,6 +92,7 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
 
     @Override public void onReceive(Context context, Intent intent) {
       if(intent.getAction().equals(getString(R.string.prepare_filter))){
+        changePlayBtnDrawable(R.drawable.ic_pause_circle_fill_grey600_48dp);
         //We only get duraion when the media player finish preparing
         seekBar.setProgress(0);
         seekBar.setMax(getDuration());
@@ -102,7 +106,12 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
         int durationSec = (durationInMillis%MINUTE)/SECOND;
         startTime.setText("00:00"); //start time is always zero
         stopTime.setText(String.format("%02d:%02d",durationMint,durationSec));
-        new Thread(MusicPlayerFragment.this).start();
+        new Thread(MusicPlayerFragment.this).start(); // Update seekbar
+      } else if(intent.getAction().equals(getString(R.string.complete_filter))){
+        changePlayBtnDrawable(R.drawable.ic_play_circle_fill_grey600_48dp);
+        sharePreferences.edit().putString(PREVIEW_LINK,"dummy").apply();
+      } else if(intent.getAction().equals(getString(R.string.error_filter))){
+        Toast.makeText(activity,"Can't play the requested music",Toast.LENGTH_LONG).show();
       }
     }
   }
@@ -176,7 +185,15 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
     if (playIntent == null) {
       playIntent = new Intent(activity, AudioService.class);
       activity.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-      activity.startService(playIntent);
+      if(!AudioService.isInstanceCreated()){
+        Log.d("audioservice"," not created");
+        activity.startService(playIntent);
+      }else{
+        Log.d("audioservice"," created");
+        audioService = AudioService.getAudioService();
+        musicBound = true;
+        playSongFromUrl();
+      }
     }
   }
 
@@ -190,9 +207,11 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
       if(isPlaying()) {
         changePlayBtnDrawable(R.drawable.ic_play_circle_fill_grey600_48dp);
         audioService.pausePlayer();
+        sharePreferences.edit().putString(PREVIEW_LINK,"dummy").apply();
       }else if (audioService != null && musicBound) {
         changePlayBtnDrawable(R.drawable.ic_pause_circle_fill_grey600_48dp);
-        audioService.go();
+        audioService.playSong(previewUrl);
+        sharePreferences.edit().putString(PREVIEW_LINK,previewUrl).apply();
         }
       }
     }
@@ -222,7 +241,7 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
   }
 
   @Override public void run() {
-    int currentPosition = 0;
+    int currentPosition = getCurrentPosition();
     long total = getDuration();
     while (currentPosition < total) {
       try {
@@ -236,12 +255,30 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
 
   @Override public void onResume() {
     super.onResume();
-    IntentFilter filter = new IntentFilter(getString(R.string.prepare_filter));
+    IntentFilter filter = new IntentFilter();
+    filter.addAction(getString(R.string.prepare_filter));
+    filter.addAction(getString(R.string.complete_filter));
+    filter.addAction(getString(R.string.error_filter));
     activity.registerReceiver(mediaPreparedReceiver, filter);
   }
 
   @Override public void onPause() {
     super.onPause();
     activity.unregisterReceiver(mediaPreparedReceiver);
+  }
+
+  private void playSongFromUrl(){
+    // start a new media player only if the stream link is not the last one played
+    if(!previewUrl.equals(sharePreferences.getString(PREVIEW_LINK,""))) {
+      Log.d("playing song","true");
+      audioService.playSong(previewUrl); // start playing a new song
+      sharePreferences.edit().putString(PREVIEW_LINK, previewUrl).apply(); // save the url for future access
+    }else{
+      if(isPlaying()){
+        changePlayBtnDrawable(R.drawable.ic_pause_circle_fill_grey600_48dp);
+        Log.d("duration",getDuration()+"");
+        new Thread(MusicPlayerFragment.this).start();
+      }
+    }
   }
 }

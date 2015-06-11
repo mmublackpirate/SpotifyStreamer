@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.RemoteViews;
 import com.yemyatthu.spotifystreamer.R;
 import java.io.IOException;
@@ -24,16 +25,15 @@ public class AudioService extends Service
   private static final String QUIT_FILTER = "quit_filter";
   private static final String PLAY_FILTER = "play_filter";
   private final IBinder audioBind = new AudioBinder();
-  private MediaPlayer mMediaPlayer;
-  private String url;
+  private MediaPlayer mediaPlayer;
 
  private final BroadcastReceiver quitReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       if (intent.getAction().equals(QUIT_FILTER)) {
         stopForeground(true);
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        mediaPlayer = null;
         stopSelf();
       } else if (intent.getAction().equals(PLAY_FILTER)) {
         if (isPng()) {
@@ -46,34 +46,48 @@ public class AudioService extends Service
   };
   private RemoteViews remoteView;
 
+  private static AudioService instance = null;
+
+  public static boolean isInstanceCreated() {
+    return instance != null;
+  }
+
+  public static AudioService getAudioService(){
+    return instance;
+  }
+
   @Override public void onCreate() {
     super.onCreate();
-    mMediaPlayer = new MediaPlayer();
-    initMusicPlayer();
+    instance = this;
     //registerReceiver(quitReceiver, new IntentFilter(QUIT_FILTER));
     //registerReceiver(quitReceiver, new IntentFilter(PLAY_FILTER));
   }
 
   @Override public void onCompletion(MediaPlayer mediaPlayer) {
-    mMediaPlayer.release();
-    mMediaPlayer = null;
+    this.mediaPlayer.release();
+    this.mediaPlayer = null;
     stopSelf();
+    Intent completeIntent = new Intent();
+    completeIntent.setAction(getString(R.string.complete_filter));
+    sendBroadcast(completeIntent);
     //stopForeground(true);
   }
 
   @Override public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-    mMediaPlayer.reset();
+    this.mediaPlayer.reset();
+    Intent errorIntent = new Intent();
+    errorIntent.setAction(getString(R.string.error_filter));
+    sendBroadcast(errorIntent);
     return false;
   }
 
 
 
   @Override public void onPrepared(MediaPlayer mediaPlayer) {
+    mediaPlayer.start();
     Intent intent = new Intent();
     intent.setAction(getString(R.string.prepare_filter));
     sendBroadcast(intent);
-    mediaPlayer.start();
-
     //Intent notIntent = new Intent(this, MyBooksActivity.class);
     //notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     //PendingIntent pendingIntent =
@@ -113,64 +127,68 @@ public class AudioService extends Service
   @Override public void onDestroy() {
     stopSelf();
     //stopForeground(true);
-    if (mMediaPlayer != null) {
-      mMediaPlayer.release();
-      mMediaPlayer = null;
+    if (mediaPlayer != null) {
+      mediaPlayer.release();
+      mediaPlayer = null;
     }
-    unregisterReceiver(quitReceiver);
+    instance = null;
+    //unregisterReceiver(quitReceiver);
   }
 
   public void initMusicPlayer() {
     //set player properties
-    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-    mMediaPlayer.setOnPreparedListener(this);
-    mMediaPlayer.setOnCompletionListener(this);
-    mMediaPlayer.setOnErrorListener(this);
+    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    mediaPlayer.setOnPreparedListener(this);
+    mediaPlayer.setOnCompletionListener(this);
+    mediaPlayer.setOnErrorListener(this);
   }
 
-  public void getUrl(String url) {
-    this.url = url;
-  }
-
-  public void playSong() {
-
+  public void playSong(String url) {
+    if(url==null || url.length()==0 ){
+      return;
+    }
+    Log.d("url",url);
     //play a song
-    if (mMediaPlayer == null) {
-      mMediaPlayer = new MediaPlayer();
+    if (mediaPlayer == null) {
+      mediaPlayer = new MediaPlayer();
       initMusicPlayer();
     } else {
-      mMediaPlayer.reset();
+      if(mediaPlayer.isPlaying()){
+        mediaPlayer.stop();
+      }
+      mediaPlayer.reset();
     }
     try {
-      mMediaPlayer.setDataSource(url);
+      mediaPlayer.setDataSource(url);
     } catch (IOException e) {
+      Log.d("io exception",e.getLocalizedMessage());
       e.printStackTrace();
     }
-    mMediaPlayer.prepareAsync();
+    mediaPlayer.prepareAsync();
   }
 
   public int getPosn() {
-    return mMediaPlayer.getCurrentPosition();
+    return mediaPlayer.getCurrentPosition();
   }
 
   public int getDur() {
-    return mMediaPlayer.getDuration();
+    return mediaPlayer.getDuration();
   }
 
   public boolean isPng() {
-    return mMediaPlayer != null && mMediaPlayer.isPlaying();
+    return mediaPlayer != null && mediaPlayer.isPlaying();
   }
 
   public void pausePlayer() {
-    mMediaPlayer.pause();
+    mediaPlayer.pause();
   }
 
   public void seek(int posn) {
-    mMediaPlayer.seekTo(posn);
+    mediaPlayer.seekTo(posn);
   }
 
   public void go() {
-    mMediaPlayer.start();
+    mediaPlayer.start();
   }
 
   public class AudioBinder extends Binder {
