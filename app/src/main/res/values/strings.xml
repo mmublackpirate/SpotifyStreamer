@@ -10,4 +10,5 @@
   </string>
   <string name="complete_filter">com.yemyatthu.spotifystreamer.service.complete_filter</string>
   <string name="error_filter">com.yemyatthu.spotifystreamer.error_filter</string>
+  <string name="play_song">com.yemyatthu.spotifystreamer.service.audioservice.play_song</string>
 </resources>

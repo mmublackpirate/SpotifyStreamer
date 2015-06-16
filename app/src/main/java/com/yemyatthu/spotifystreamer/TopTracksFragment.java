@@ -151,6 +151,8 @@ public class TopTracksFragment extends Fragment implements TopTracksAdapter.Clic
         spotify.getArtistTopTrack(artistId, countryParam, new Callback<Tracks>() {
           @Override public void success(final Tracks tracks, Response response) {
             if (tracks.tracks != null && tracks.tracks.size() > 0) {
+              listString = FileUtils.convertListToJsonString(tracks.tracks);
+              FileUtils.saveJsonString(activity, artistId + ".dat", listString);
               if(isTablet) {
                 try {
                   Bitmap bitmap = Glide.with(activity)
@@ -176,8 +178,6 @@ public class TopTracksFragment extends Fragment implements TopTracksAdapter.Clic
                   }
                 }
               });
-              listString = FileUtils.convertListToJsonString(tracks.tracks);
-              FileUtils.saveJsonString(activity, artistId + ".dat", listString);
 
             } else {
               if (localTracks != null && localTracks.size() > 0) {
@@ -296,10 +296,8 @@ public class TopTracksFragment extends Fragment implements TopTracksAdapter.Clic
 
   @Override public void onItemClick(View view, int position) {
     Intent playerIntent = new Intent(activity,MusicPlayerActivity.class);
-    playerIntent.putExtra(MusicPlayerActivity.ARTIST_NAME,artistName);
-    playerIntent.putExtra(MusicPlayerActivity.TRACK_TITLE,localTracks.get(position).name);
-    playerIntent.putExtra(MusicPlayerActivity.COVER_URL,localTracks.get(position).album.images.get(0).url);
-    playerIntent.putExtra(MusicPlayerActivity.PREVIEW_LINK,localTracks.get(position).preview_url);
+    playerIntent.putExtra(MusicPlayerActivity.FILE_NAME,artistId+".dat");
+    playerIntent.putExtra(MusicPlayerActivity.TRACK_POSITION,position);
     startActivity(playerIntent);
   }
 }

@@ -8,7 +8,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.RemoteViews;
 import com.yemyatthu.spotifystreamer.R;
 import java.io.IOException;
@@ -26,6 +25,7 @@ public class AudioService extends Service
   private static final String PLAY_FILTER = "play_filter";
   private final IBinder audioBind = new AudioBinder();
   private MediaPlayer mediaPlayer;
+  private String url;
 
  private final BroadcastReceiver quitReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
@@ -44,6 +44,10 @@ public class AudioService extends Service
       }
     }
   };
+
+  public String getUrl(){
+    return this.url;
+  }
   private RemoteViews remoteView;
 
   private static AudioService instance = null;
@@ -59,14 +63,13 @@ public class AudioService extends Service
   @Override public void onCreate() {
     super.onCreate();
     instance = this;
+    mediaPlayer = new MediaPlayer();
+    initMusicPlayer();
     //registerReceiver(quitReceiver, new IntentFilter(QUIT_FILTER));
     //registerReceiver(quitReceiver, new IntentFilter(PLAY_FILTER));
   }
 
   @Override public void onCompletion(MediaPlayer mediaPlayer) {
-    this.mediaPlayer.release();
-    this.mediaPlayer = null;
-    stopSelf();
     Intent completeIntent = new Intent();
     completeIntent.setAction(getString(R.string.complete_filter));
     sendBroadcast(completeIntent);
@@ -121,10 +124,15 @@ public class AudioService extends Service
   }
 
   @Override public boolean onUnbind(Intent intent) {
-    return false;
+    // if music is not playing, destroy it.
+    if(!mediaPlayer.isPlaying()){
+      onDestroy();
+    }
+    return true;
   }
 
   @Override public void onDestroy() {
+    super.onDestroy();
     stopSelf();
     //stopForeground(true);
     if (mediaPlayer != null) {
@@ -147,7 +155,7 @@ public class AudioService extends Service
     if(url==null || url.length()==0 ){
       return;
     }
-    Log.d("url",url);
+    this.url = url;
     //play a song
     if (mediaPlayer == null) {
       mediaPlayer = new MediaPlayer();
@@ -155,15 +163,34 @@ public class AudioService extends Service
     } else {
       if(mediaPlayer.isPlaying()){
         mediaPlayer.stop();
+
+        /*** Only resetting, without releasing and starting a new media player,
+         * This error occurred on my two test devices - both from Xiaomi
+         * But working fine in emulator
+         * Not sure because of MIUI bug or App bug.
+         *
+         *   MediaPlayer
+         *   error (-38, 0)
+         *   Error (-38,0)
+         *   error (1, -107)
+         *
+         ***/
+
+        mediaPlayer.release();
+        mediaPlayer = new MediaPlayer();
+        initMusicPlayer();
+      }else {
+        mediaPlayer.reset();
       }
-      mediaPlayer.reset();
     }
     try {
       mediaPlayer.setDataSource(url);
     } catch (IOException e) {
-      Log.d("io exception",e.getLocalizedMessage());
       e.printStackTrace();
     }
+    Intent intent = new Intent();
+    intent.setAction(getString(R.string.play_song));
+    sendBroadcast(intent);
     mediaPlayer.prepareAsync();
   }
 
