@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -43,7 +44,8 @@ public class TopTracksFragment extends Fragment implements TopTracksAdapter.Clic
   private static final String LIGHT_BG_COLOR ="com.yemyatthu.spotifystreamer.TopTracksFragment.LIGHT_BG_COLOR" ;
   private static final String DARK_BG_COLOR = "com.yemyatthu.spotifystreamer.TopTracksFragment.DARK_BG_COLOR";
   private static final String EMPTY_TEXT = "com.yemyatthu.spotifystreamer.TopTracksFragment.EMPTY_TEXT";
-  private static final String IS_PROGRESS_BAR_VISIBLE = "com.yemyatthu.spotifystreamer.TopTracksFragment.IS_PROGRESS_BAR_VISIBLE";;
+  private static final String IS_PROGRESS_BAR_VISIBLE = "com.yemyatthu.spotifystreamer.TopTracksFragment.IS_PROGRESS_BAR_VISIBLE";
+
   @InjectView(R.id.tracks_recycler_view) RecyclerView tracksRecyclerView;
   @InjectView(R.id.top_track_progress_bar) ProgressBar topTrackProgressBar;
   @InjectView(R.id.empty_view) TextView emptyText;
@@ -295,9 +297,24 @@ public class TopTracksFragment extends Fragment implements TopTracksAdapter.Clic
   }
 
   @Override public void onItemClick(View view, int position) {
-    Intent playerIntent = new Intent(activity,MusicPlayerActivity.class);
-    playerIntent.putExtra(MusicPlayerActivity.FILE_NAME,artistId+".dat");
-    playerIntent.putExtra(MusicPlayerActivity.TRACK_POSITION,position);
-    startActivity(playerIntent);
+    if(isTablet){
+      android.support.v4.app.FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+
+      MusicPlayerFragment prev =
+          (MusicPlayerFragment) activity.getSupportFragmentManager().findFragmentByTag("dialog");
+      if(prev!= null){
+        ft.remove(prev);
+      }
+      ft.addToBackStack(null);
+      MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.getNewInstance(position,artistId+".dat",isTablet);
+      musicPlayerFragment.setStyle(DialogFragment.STYLE_NO_TITLE,R.style.Base_Theme_AppCompat_Dialog_Alert);
+      musicPlayerFragment.show(activity.getSupportFragmentManager(),"dialog");
+    }else {
+      Intent playerIntent = new Intent(activity, MusicPlayerActivity.class);
+      playerIntent.putExtra(MusicPlayerActivity.FILE_NAME, artistId + ".dat");
+      playerIntent.putExtra(MusicPlayerActivity.TRACK_POSITION, position);
+      playerIntent.putExtra(MusicPlayerActivity.IS_TABLET,isTablet);
+      startActivity(playerIntent);
+    }
   }
 }

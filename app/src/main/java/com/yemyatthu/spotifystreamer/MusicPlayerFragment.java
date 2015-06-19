@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -41,7 +40,7 @@ import kaaes.spotify.webapi.android.models.Track;
 /**
  * Created by yemyatthu on 6/10/15.
  */
-public class MusicPlayerFragment extends Fragment implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,Runnable{
+public class MusicPlayerFragment extends android.support.v4.app.DialogFragment implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,Runnable{
   @InjectView(R.id.track_title) TextView trackTitleTv;
   @InjectView(R.id.artist_title) TextView artistTitleTv;
   @InjectView(R.id.image_cover_small) ImageView imageCoverSmall;
@@ -60,6 +59,7 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
 
   public static final String TRACK_POSITION ="com.yemyatthu.spotifystreamer.musicplayerfragment.TRACK_POSITION";
   public static final String FILE_NAME = "com.yemyatthu.spotifystreamer.musicplayerfragment.FILE_NAME";
+  private static final String IS_TABLET ="com.yemyatthu.spotifystreamer.musicplayerfragment.IS_TABLET";
   private BaseActivity activity;
   private ActionBar actionBar;
   private AudioService audioService;
@@ -71,11 +71,12 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
   private SharedPreferences sharePreferences;
   private List<Track> tracks;
   private String previewUrl;
-
-  public static MusicPlayerFragment getNewInstance(int position,String fileName){
+  private boolean isTablet;
+  public static MusicPlayerFragment getNewInstance(int position,String fileName,boolean isTablet) {
     Bundle args = new Bundle();
     args.putInt(TRACK_POSITION, position);
     args.putString(FILE_NAME, fileName);
+    args.putBoolean(IS_TABLET,isTablet);
     MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
     musicPlayerFragment.setArguments(args);
     return musicPlayerFragment;
@@ -128,7 +129,9 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
     actionBar.setTitle("");
     actionBar.hide();
     playerControlContainer.setVisibility(View.INVISIBLE);
+    if(!getArguments().getBoolean(IS_TABLET)){
     actionBar.setDisplayHomeAsUpEnabled(true);
+    }
     trackPosition = getArguments().getInt(TRACK_POSITION);
     fileName = getArguments().getString(FILE_NAME);
     tracks = FileUtils.convertJsonStringToList(FileUtils.loadJsonString(activity, fileName));
@@ -306,8 +309,8 @@ public class MusicPlayerFragment extends Fragment implements View.OnClickListene
   }
 
   class BitmapAsyncTask extends AsyncTask<String,Void,Bitmap>{
-    Fragment fragment;
-    public BitmapAsyncTask(Fragment fragment){
+    android.support.v4.app.DialogFragment fragment;
+    public BitmapAsyncTask(android.support.v4.app.DialogFragment fragment){
       this.fragment = fragment;
     }
     @Override protected Bitmap doInBackground(String ... urls) {
