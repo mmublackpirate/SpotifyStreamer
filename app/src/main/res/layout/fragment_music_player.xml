@@ -36,55 +36,6 @@
       android:layout_height="match_parent"
       tools:background="@color/primaryColor"/>
 
-  <android.support.v7.widget.Toolbar
-      android:id="@+id/player_toolbar"
-      android:background="@color/playerColor"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:minHeight="?attr/actionBarSize"
-      android:contentInsetStart="0dp"
-      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-      app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-      <ImageView
-          android:id="@+id/image_cover_small"
-          android:layout_marginRight="@dimen/padding_tiny"
-          android:layout_marginTop="@dimen/padding_tiny"
-          android:layout_marginBottom="@dimen/padding_tiny"
-          android:layout_width="?attr/actionBarSize"
-          android:layout_centerVertical="true"
-          android:layout_height="?attr/actionBarSize"
-          android:scaleType="center"
-          tools:src="@drawable/placeholder"/>
-      <TextView
-          android:id="@+id/track_title"
-          style="@style/TextAppearance.AppCompat.Body1"
-          android:layout_alignParentTop="true"
-          android:layout_toRightOf="@id/image_cover_small"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:lines="1"
-          android:singleLine="true"
-          android:layout_marginTop="@dimen/padding_small"
-          android:layout_marginLeft="@dimen/padding_small"
-          tools:text="The way people talk"/>
-      <TextView
-          android:id="@+id/artist_title"
-          style="@style/TextAppearance.AppCompat.Caption"
-          android:layout_below="@id/track_title"
-          android:layout_toRightOf="@id/image_cover_small"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:lines="1"
-          android:singleLine="true"
-          android:layout_marginTop="@dimen/padding_tiny"
-          android:layout_marginLeft="@dimen/padding_small"
-          android:layout_marginBottom="@dimen/padding_tiny"
-          tools:text="Taylor Swift"/>
-    </RelativeLayout>
-  </android.support.v7.widget.Toolbar>
     <RelativeLayout
         android:id="@+id/seek_bar_container"
         android:layout_width="wrap_content"
@@ -162,4 +113,53 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </FrameLayout>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/player_toolbar"
+        android:background="@color/playerColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:contentInsetStart="0dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/image_cover_small"
+                android:layout_marginRight="@dimen/padding_tiny"
+                android:layout_marginTop="@dimen/padding_tiny"
+                android:layout_marginBottom="@dimen/padding_tiny"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_centerVertical="true"
+                android:layout_height="?attr/actionBarSize"
+                android:scaleType="center"
+                tools:src="@drawable/placeholder"/>
+            <TextView
+                android:id="@+id/track_title"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@id/image_cover_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:singleLine="true"
+                android:layout_marginTop="@dimen/padding_small"
+                android:layout_marginLeft="@dimen/padding_small"
+                tools:text="The way people talk"/>
+            <TextView
+                android:id="@+id/artist_title"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_below="@id/track_title"
+                android:layout_toRightOf="@id/image_cover_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:singleLine="true"
+                android:layout_marginTop="@dimen/padding_tiny"
+                android:layout_marginLeft="@dimen/padding_small"
+                android:layout_marginBottom="@dimen/padding_tiny"
+                tools:text="Taylor Swift"/>
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
 </RelativeLayout>

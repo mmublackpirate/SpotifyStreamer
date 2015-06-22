@@ -1,22 +1,22 @@
 package com.yemyatthu.spotifystreamer;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +40,7 @@ import kaaes.spotify.webapi.android.models.Track;
 /**
  * Created by yemyatthu on 6/10/15.
  */
-public class MusicPlayerFragment extends android.support.v4.app.DialogFragment implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,Runnable{
+public class MusicPlayerFragment extends DialogFragment implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,Runnable{
   @InjectView(R.id.track_title) TextView trackTitleTv;
   @InjectView(R.id.artist_title) TextView artistTitleTv;
   @InjectView(R.id.image_cover_small) ImageView imageCoverSmall;
@@ -68,10 +68,9 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
   private String fileName;
   private int trackPosition;
   private MediaPreparedReceiver mediaPreparedReceiver;
-  private SharedPreferences sharePreferences;
   private List<Track> tracks;
   private String previewUrl;
-  private boolean isTablet;
+
   public static MusicPlayerFragment getNewInstance(int position,String fileName,boolean isTablet) {
     Bundle args = new Bundle();
     args.putInt(TRACK_POSITION, position);
@@ -123,7 +122,6 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
     View view = inflater.inflate(R.layout.fragment_music_player,container,false);
     ButterKnife.inject(this, view);
     mediaPreparedReceiver = new MediaPreparedReceiver();
-    activity = (BaseActivity) getActivity();
     activity.setSupportActionBar(playerToolbar);
     actionBar = activity.getSupportActionBar();
     actionBar.setTitle("");
@@ -143,7 +141,6 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
     prevBtn.setOnClickListener(this);
     seekBar.setOnSeekBarChangeListener(this);
     progressContainer.setOnClickListener(this); // Set a dummy click listener so that user can't press other view below this
-    sharePreferences = activity.getDefaultPreferences();
     return view;
   }
 
@@ -175,8 +172,10 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
   }
 
 
-  public int getAudioSessionId() {
-    return 0;
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    this.activity = (BaseActivity) activity;
+
   }
 
   @Override public void onStart() {
@@ -184,7 +183,7 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
     if (playIntent == null) {
       playIntent = new Intent(activity, AudioService.class);
       activity.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-      if(!AudioService.isInstanceCreated()){
+      if (!AudioService.isInstanceCreated()){
         activity.startService(playIntent);
       }else{
         audioService = AudioService.getAudioService();
@@ -210,14 +209,14 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
         }
       }
     else if(view.equals(prevBtn)){
-     if(trackPosition<=0){
-       trackPosition --;
+     if(trackPosition-1<=0){
+       trackPosition--;
        doUiThings(tracks.get(trackPosition));
        playSongFromUrl();
      }
     }
     else if (view.equals(nextBtn)){
-      if(trackPosition<tracks.size()){
+      if(trackPosition+1<tracks.size()){
         trackPosition++;
         doUiThings(tracks.get(trackPosition));
         playSongFromUrl();
@@ -280,13 +279,10 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
   private void playSongFromUrl(){
     // start a new media player only if the stream link is not the last one played
     if(!previewUrl.equals(audioService.getUrl())) {
-      Log.d("playing song", "true");
       audioService.playSong(previewUrl); // start playing a new song
     }else{
       if(isPlaying()){
         changePlayBtnDrawable(R.drawable.ic_pause_circle_fill_white_48dp);
-        Log.d("current", getCurrentPosition() + "");
-        Log.d("duration", getDuration() + "");
         updateSeekBar();
         progressContainer.setVisibility(View.GONE);
       }
@@ -345,7 +341,7 @@ public class MusicPlayerFragment extends android.support.v4.app.DialogFragment i
     trackTitleTv.setText(track.name);
     artistTitleTv.setText(""); // Clear the artist textview first not to mix with next track artists
     for (ArtistSimple artist : track.artists) {
-      artistTitleTv.append(artist.name);
+      artistTitleTv.append(artist.name+" ");
     }
     new BitmapAsyncTask(MusicPlayerFragment.this).execute(track.album.images.get(0).url);
     albumTitlePlayerTv.setText(track.album.name);
