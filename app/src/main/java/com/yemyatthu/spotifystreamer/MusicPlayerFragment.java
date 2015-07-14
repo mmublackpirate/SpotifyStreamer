@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -62,7 +63,7 @@ public class MusicPlayerFragment extends DialogFragment
   @InjectView(R.id.album_title_player) TextView albumTitlePlayerTv;
   @InjectView(R.id.progress_container) FrameLayout progressContainer;
   @InjectView(R.id.player_control_container) RelativeLayout playerControlContainer;
-  private BaseActivity activity;
+  private AppCompatActivity activity;
   private ActionBar actionBar;
   private AudioService audioService;
   private Intent playIntent;
@@ -154,7 +155,7 @@ public class MusicPlayerFragment extends DialogFragment
 
   @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
-    this.activity = (BaseActivity) activity;
+    this.activity = (AppCompatActivity) activity;
   }
 
   @Override public void onClick(View view) {

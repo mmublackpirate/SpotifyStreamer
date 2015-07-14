@@ -1,11 +1,12 @@
 package com.yemyatthu.spotifystreamer;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by yemyatthu on 6/10/15.
  */
-public class MusicPlayerActivity extends BaseActivity {
+public class MusicPlayerActivity extends AppCompatActivity {
   public static final String TRACK_POSITION =
       "com.yemyatthu.spotifystreamer.musicplayeractivity.TRACK_TITLE";
   public static final String FILE_NAME =

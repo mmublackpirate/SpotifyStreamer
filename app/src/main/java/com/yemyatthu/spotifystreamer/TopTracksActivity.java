@@ -1,11 +1,12 @@
 package com.yemyatthu.spotifystreamer;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by yemyatthu on 6/8/1x5.
  */
-public class TopTracksActivity extends BaseActivity {
+public class TopTracksActivity extends AppCompatActivity {
 
   public static final String ARTIST_ID =
       "com.yemyatthu.spotifystreamer.TopTracksActivity.ARTIST_ID";

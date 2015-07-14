@@ -2,6 +2,7 @@ package com.yemyatthu.spotifystreamer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -31,7 +32,7 @@ import retrofit.client.Response;
 /**
  * Created by yemyatthu on 6/2/15.
  */
-public class SearchActivity extends BaseActivity
+public class SearchActivity extends AppCompatActivity
     implements android.support.v7.widget.SearchView.OnQueryTextListener,
     ArtistSearchAdapter.ClickListener {
 
