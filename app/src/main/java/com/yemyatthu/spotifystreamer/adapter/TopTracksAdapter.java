@@ -25,33 +25,33 @@ public class TopTracksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
   private List<Track> tracks = new ArrayList<>();
   private Context context;
 
-  public void setTracks(List<Track> tracks){
-    this.tracks = tracks;
-    notifyDataSetChanged();
-  }
-
   public List<Track> getTracks() {
     return this.tracks;
   }
 
+  public void setTracks(List<Track> tracks) {
+    this.tracks = tracks;
+    notifyDataSetChanged();
+  }
+
   @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     context = parent.getContext();
-    View view = LayoutInflater.from(context).inflate(R.layout.top_tracks_item,parent,false);
+    View view = LayoutInflater.from(context).inflate(R.layout.top_tracks_item, parent, false);
     return new TopTracksViewHolder(view);
   }
 
   @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-    if(holder instanceof TopTracksViewHolder){
+    if (holder instanceof TopTracksViewHolder) {
       ImageView trackImage = ((TopTracksViewHolder) holder).topTracksImage;
       TextView trackName = ((TopTracksViewHolder) holder).topTracksName;
       TextView trackAlbumn = ((TopTracksViewHolder) holder).topTracksAlbum;
       List<Image> albumImages = tracks.get(position).album.images;
-      if(albumImages.size()>1){
-      Glide.with(context)
-          .load(tracks.get(position).album.images.get(1).url)
-          .placeholder(R.drawable.placeholder)
-          .error(R.drawable.placeholder)
-          .into(trackImage);
+      if (albumImages.size() > 1) {
+        Glide.with(context)
+            .load(tracks.get(position).album.images.get(1).url)
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.placeholder)
+            .into(trackImage);
       }
       trackName.setText(tracks.get(position).name);
       trackAlbumn.setText(tracks.get(position).album.name);
@@ -59,7 +59,7 @@ public class TopTracksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
   }
 
   @Override public int getItemCount() {
-    return tracks!=null?tracks.size():0;
+    return tracks != null ? tracks.size() : 0;
   }
 
   public void setOnItemClickListener(final ClickListener itemClickListener) {
@@ -70,16 +70,14 @@ public class TopTracksAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     void onItemClick(View view, int position);
   }
 
-
-  public class TopTracksViewHolder extends RecyclerView.ViewHolder implements
-      View.OnClickListener {
+  public class TopTracksViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     @InjectView(R.id.top_tracks_image) ImageView topTracksImage;
     @InjectView(R.id.top_tracks_name) TextView topTracksName;
     @InjectView(R.id.top_tracks_albumn) TextView topTracksAlbum;
 
     public TopTracksViewHolder(View itemView) {
       super(itemView);
-      ButterKnife.inject(this,itemView);
+      ButterKnife.inject(this, itemView);
       itemView.setOnClickListener(this);
     }
 

@@ -22,55 +22,59 @@ import kaaes.spotify.webapi.android.models.Image;
  * Created by yemyatthu on 6/5/15.
  */
 public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-  private List<Artist> artists = new ArrayList<>();
-  private Context context;
   public static final int ITEM_VIEW = 100;
   public static final int FOOTER_VIEW = 101;
+  private List<Artist> artists = new ArrayList<>();
+  private Context context;
   private boolean progressBarIsShown = true;
   private ClickListener itemClickListener;
   private int checkItemPos = -100;
-  public ArtistSearchAdapter(){
+
+  public ArtistSearchAdapter() {
   }
 
-  public void setArtists(List<Artist> artists){
-    this.artists = artists;
-    notifyDataSetChanged();
-  }
-
-  public void addArtists(List<Artist> artists){
+  public void addArtists(List<Artist> artists) {
     this.artists.addAll(artists);
     notifyDataSetChanged();
   }
 
-  public List<Artist> getArtists(){
+  public List<Artist> getArtists() {
     return this.artists;
   }
-  public void toogleProgressBarVisibilty(boolean progressBarIsShown){
+
+  public void setArtists(List<Artist> artists) {
+    this.artists = artists;
+    notifyDataSetChanged();
+  }
+
+  public void toogleProgressBarVisibilty(boolean progressBarIsShown) {
     this.progressBarIsShown = progressBarIsShown;
     notifyDataSetChanged();
   }
-  public void clear(){
+
+  public void clear() {
     this.artists = new ArrayList<>();
     notifyDataSetChanged();
   }
 
-  public void setCheckedItem(int position){
+  public void setCheckedItem(int position) {
     this.checkItemPos = position;
     notifyDataSetChanged();
   }
 
-  public int getCheckItem(){
+  public int getCheckItem() {
     return this.checkItemPos;
   }
+
   @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     context = parent.getContext();
     View view;
-    switch (viewType){
+    switch (viewType) {
       case ITEM_VIEW:
-        view = LayoutInflater.from(context).inflate(R.layout.artist_search_item,parent,false);
+        view = LayoutInflater.from(context).inflate(R.layout.artist_search_item, parent, false);
         return new ArtistSearchViewHolder(view);
       case FOOTER_VIEW:
-        view = LayoutInflater.from(context).inflate(R.layout.progress_bar,parent,false);
+        view = LayoutInflater.from(context).inflate(R.layout.progress_bar, parent, false);
         return new ProgressViewHolder(view);
       default:
         return null;
@@ -78,38 +82,41 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
   }
 
   @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-    if(holder instanceof ArtistSearchViewHolder){
+    if (holder instanceof ArtistSearchViewHolder) {
       FrameLayout checkBackground = ((ArtistSearchViewHolder) holder).checkBackground;
       TextView artistName = ((ArtistSearchViewHolder) holder).artistName;
       ImageView artistImage = ((ArtistSearchViewHolder) holder).artistImage;
       artistName.setText(artists.get(position).name);
       List<Image> images = artists.get(position).images;
-      if(checkItemPos==position){
-        checkBackground.setForeground(context.getResources().getDrawable(R.drawable.check_background));
-      }else{
+      if (checkItemPos == position) {
+        checkBackground.setForeground(
+            context.getResources().getDrawable(R.drawable.check_background));
+      } else {
         checkBackground.setForeground(null);
       }
-      if(images.size()>=2)
-      Glide.with(context)
-          .load(artists.get(position).images.get(1).url)
-          .placeholder(R.drawable.placeholder)
-          .error(R.drawable.placeholder)
-          .into(artistImage);
-    }else if(holder instanceof ProgressViewHolder){
-      if (progressBarIsShown && artists.size()>0){ //Without data, don't show footer view
+      if (images.size() >= 2) {
+        Glide.with(context)
+            .load(artists.get(position).images.get(1).url)
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.placeholder)
+            .into(artistImage);
+      }
+    } else if (holder instanceof ProgressViewHolder) {
+      if (progressBarIsShown && artists.size() > 0) { //Without data, don't show footer view
         ((ProgressViewHolder) holder).progressBar.setVisibility(View.VISIBLE);
-      }else{
+      } else {
         ((ProgressViewHolder) holder).progressBar.setVisibility(View.GONE);
       }
     }
   }
 
   @Override public int getItemCount() {
-    return artists==null?0:artists.size()+1; //plus one for the footer view space
+    return artists == null ? 0 : artists.size() + 1; //plus one for the footer view space
   }
 
   @Override public int getItemViewType(int position) {
-    return position<artists.size()?ITEM_VIEW:FOOTER_VIEW; //Footer view should be given when there're no more artists
+    return position < artists.size() ? ITEM_VIEW
+        : FOOTER_VIEW; //Footer view should be given when there're no more artists
   }
 
   public void setOnItemClickListener(final ClickListener itemClickListener) {
@@ -120,15 +127,15 @@ public class ArtistSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     void onItemClick(View view, int position);
   }
 
-  public class ArtistSearchViewHolder extends RecyclerView.ViewHolder implements
-      View.OnClickListener {
+  public class ArtistSearchViewHolder extends RecyclerView.ViewHolder
+      implements View.OnClickListener {
     @InjectView(R.id.artist_search_image) ImageView artistImage;
     @InjectView(R.id.artist_search_name) TextView artistName;
     @InjectView(R.id.checkBackground) FrameLayout checkBackground;
 
     public ArtistSearchViewHolder(View itemView) {
       super(itemView);
-      ButterKnife.inject(this,itemView);
+      ButterKnife.inject(this, itemView);
       itemView.setOnClickListener(this);
     }
 

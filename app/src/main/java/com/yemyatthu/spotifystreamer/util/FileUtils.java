@@ -19,7 +19,7 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by yemyatthu on 6/9/15.
  */
 public class FileUtils {
-  public static void saveJsonString(Context context,String fileName,String string){
+  public static void saveJsonString(Context context, String fileName, String string) {
     OutputStream outputStream = null;
     try {
       outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
@@ -32,25 +32,25 @@ public class FileUtils {
     }
   }
 
-  public static String  convertListToJsonString(List<Track> tracks){
+  public static String convertListToJsonString(List<Track> tracks) {
     GsonBuilder gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     return gson.toJson(tracks);
   }
 
   public static List<Track> convertJsonStringToList(String builderString) {
-    if(builderString!=null) {
+    if (builderString != null) {
       GsonBuilder gsonBuilder = new GsonBuilder();
       Gson gson = gsonBuilder.create();
       Type type = new TypeToken<List<Track>>() {
       }.getType();
       return gson.fromJson(builderString, type);
-    }else{
+    } else {
       return null;
     }
   }
 
-  public static String loadJsonString(Context context,String fileName){
+  public static String loadJsonString(Context context, String fileName) {
     StringBuilder builder = null;
     InputStream inputStream = null;
     try {
@@ -67,6 +67,6 @@ public class FileUtils {
     } catch (IOException ioException) {
       Log.d("IO Exception", "IO Exception");
     }
-   return builder!=null?builder.toString():null;
+    return builder != null ? builder.toString() : null;
   }
 }

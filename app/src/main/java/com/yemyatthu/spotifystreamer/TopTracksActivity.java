@@ -20,9 +20,11 @@ public class TopTracksActivity extends BaseActivity {
     String artistId = getIntent().getStringExtra(ARTIST_ID);
     topTrackFragment =
         (TopTracksFragment) getSupportFragmentManager().findFragmentById(R.id.top_tracks_container);
-    if(topTrackFragment == null){
-      topTrackFragment = TopTracksFragment.getNewInstance(artistId,artistName,false);
-      getSupportFragmentManager().beginTransaction().add(R.id.top_tracks_container,topTrackFragment).commit();
+    if (topTrackFragment == null) {
+      topTrackFragment = TopTracksFragment.getNewInstance(artistId, artistName, false);
+      getSupportFragmentManager().beginTransaction()
+          .add(R.id.top_tracks_container, topTrackFragment)
+          .commit();
     }
   }
 }

@@ -25,15 +25,15 @@ public class ArtistListStateFragment extends Fragment {
     checkPosition = -100;
   }
 
-  public void setArtists(List<Artist> artists){
-    this.artists = artists;
-  }
-
-  public List<Artist> getArtists(){
+  public List<Artist> getArtists() {
     return this.artists;
   }
 
-  public void clearArtists(){
+  public void setArtists(List<Artist> artists) {
+    this.artists = artists;
+  }
+
+  public void clearArtists() {
     this.artists.clear();
   }
 
@@ -52,5 +52,4 @@ public class ArtistListStateFragment extends Fragment {
   public void setCheckPosition(int checkPosition) {
     this.checkPosition = checkPosition;
   }
-
 }

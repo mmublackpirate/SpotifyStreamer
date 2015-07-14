@@ -42,7 +42,6 @@ public class SearchActivity extends BaseActivity
   @InjectView(R.id.search_progress_bar) ProgressBar searchProgressBar;
   @InjectView(R.id.empty_view) TextView emptyText;
   @Optional @InjectView(R.id.search_container) FrameLayout searchContainer;
-  private SpotifyApi api;
   private SpotifyService spotify;
   private ArtistsPager results;
   private ArtistSearchAdapter artistSearchAdapter;
@@ -67,7 +66,7 @@ public class SearchActivity extends BaseActivity
           (TopTracksFragment) getSupportFragmentManager().findFragmentById(R.id.search_container);
 
       if (topTracksFragment == null) {
-        topTracksFragment = TopTracksFragment.getNewInstance("", "",true);
+        topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
         getSupportFragmentManager().beginTransaction()
             .add(R.id.search_container, topTracksFragment)
             .commit();
@@ -85,7 +84,7 @@ public class SearchActivity extends BaseActivity
           .commit();
     }
 
-    api = new SpotifyApi();
+    SpotifyApi api = new SpotifyApi();
     spotify = api.getService();
     offset = 0;
     layoutManager = new LinearLayoutManager(this);
@@ -151,7 +150,7 @@ public class SearchActivity extends BaseActivity
                   totalArtists.addAll(results.artists.items);
                   artistRecyclerView.setVisibility(View.VISIBLE);
                   artistSearchAdapter.setArtists(results.artists.items);
-                  if(isTablet) {
+                  if (isTablet) {
                     artistSearchAdapter.setCheckedItem(0);
                     topTracksFragment = TopTracksFragment.getNewInstance(totalArtists.get(0).id,
                         totalArtists.get(0).name, true);
@@ -213,11 +212,14 @@ public class SearchActivity extends BaseActivity
   }
 
   @Override public void onItemClick(View view, int position) {
-    if(isTablet){
+    if (isTablet) {
       artistSearchAdapter.setCheckedItem(position);
-      topTracksFragment = TopTracksFragment.getNewInstance(totalArtists.get(position).id,totalArtists.get(position).name,true);
-      getSupportFragmentManager().beginTransaction().replace(R.id.search_container,topTracksFragment).commit();
-    }else {
+      topTracksFragment = TopTracksFragment.getNewInstance(totalArtists.get(position).id,
+          totalArtists.get(position).name, true);
+      getSupportFragmentManager().beginTransaction()
+          .replace(R.id.search_container, topTracksFragment)
+          .commit();
+    } else {
       Intent topTrackIntent = new Intent(SearchActivity.this, TopTracksActivity.class);
       topTrackIntent.putExtra(TopTracksActivity.ARTIST_ID, totalArtists.get(position).id);
       topTrackIntent.putExtra(TopTracksActivity.ARTIST_NAME, totalArtists.get(position).name);
@@ -228,8 +230,8 @@ public class SearchActivity extends BaseActivity
   @Override protected void onDestroy() {
     super.onDestroy();
     artistListStateFragment.setArtists(artistSearchAdapter.getArtists());
-      artistListStateFragment.setLastScrollPosition(
-          ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition());
+    artistListStateFragment.setLastScrollPosition(
+        ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition());
     artistListStateFragment.setCheckPosition(artistSearchAdapter.getCheckItem());
   }
 }

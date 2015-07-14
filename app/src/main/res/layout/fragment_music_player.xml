@@ -5,29 +5,29 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:id="@+id/album_name_container"
-        android:layout_above="@+id/seek_bar_container"
-        android:layout_width="match_parent"
+  <LinearLayout
+      android:id="@+id/album_name_container"
+      android:layout_above="@+id/seek_bar_container"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:padding="@dimen/padding_normal"
+      android:orientation="vertical">
+    <TextView
+        android:id="@+id/track_title_player"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/padding_normal"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/track_title_player"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="The Way People Talk"/>
-        <TextView
-            android:id="@+id/album_title_player"
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:lines="1"
-            android:singleLine="true"
-            tools:text="The fool's gonna be the fool"/>
-        </LinearLayout>
+        tools:text="The Way People Talk"/>
+    <TextView
+        android:id="@+id/album_title_player"
+        style="@style/TextAppearance.AppCompat.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:singleLine="true"
+        tools:text="The fool's gonna be the fool"/>
+  </LinearLayout>
   <ImageView
       android:id="@+id/image_cover_big"
       android:layout_below="@+id/player_toolbar"
@@ -36,34 +36,34 @@
       android:layout_height="match_parent"
       tools:background="@color/primaryColor"/>
 
-    <RelativeLayout
-        android:id="@+id/seek_bar_container"
+  <RelativeLayout
+      android:id="@+id/seek_bar_container"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_above="@+id/player_control_container">
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/start_time"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:layout_alignLeft="@+id/seek_bar"
+        android:padding="@dimen/padding_small"
+        android:layout_below="@id/seek_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/player_control_container">
-  <SeekBar
-      android:id="@+id/seek_bar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/start_time"
-            style="@style/TextAppearance.AppCompat.Small"
-            android:layout_alignLeft="@+id/seek_bar"
-            android:padding="@dimen/padding_small"
-            android:layout_below="@id/seek_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="00:00"/>
-        <TextView
-            android:id="@+id/stop_time"
-            style="@style/TextAppearance.AppCompat.Small"
-            android:layout_alignRight="@+id/seek_bar"
-            android:padding="@dimen/padding_small"
-            android:layout_below="@id/seek_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="00:00"/>
-    </RelativeLayout>
+        tools:text="00:00"/>
+    <TextView
+        android:id="@+id/stop_time"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:layout_alignRight="@+id/seek_bar"
+        android:padding="@dimen/padding_small"
+        android:layout_below="@id/seek_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="00:00"/>
+  </RelativeLayout>
 
   <RelativeLayout
       android:id="@+id/player_control_container"
@@ -102,64 +102,64 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_play_circle_fill_white_48dp"/>
   </RelativeLayout>
-    <FrameLayout
-        android:id="@+id/progress_container"
+  <FrameLayout
+      android:id="@+id/progress_container"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:visibility="gone">
+    <ProgressBar
+        android:layout_gravity="center"
+        android:indeterminateBehavior="repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+  </FrameLayout>
+  <android.support.v7.widget.Toolbar
+      android:id="@+id/player_toolbar"
+      android:background="@color/playerColor"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:minHeight="?attr/actionBarSize"
+      android:contentInsetStart="0dp"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-        <ProgressBar
-            android:layout_gravity="center"
-            android:indeterminateBehavior="repeat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </FrameLayout>
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/player_toolbar"
-        android:background="@color/playerColor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:contentInsetStart="0dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/image_cover_small"
-                android:layout_marginRight="@dimen/padding_tiny"
-                android:layout_marginTop="@dimen/padding_tiny"
-                android:layout_marginBottom="@dimen/padding_tiny"
-                android:layout_width="?attr/actionBarSize"
-                android:layout_centerVertical="true"
-                android:layout_height="?attr/actionBarSize"
-                android:scaleType="center"
-                tools:src="@drawable/placeholder"/>
-            <TextView
-                android:id="@+id/track_title"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@id/image_cover_small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:lines="1"
-                android:singleLine="true"
-                android:layout_marginTop="@dimen/padding_small"
-                android:layout_marginLeft="@dimen/padding_small"
-                tools:text="The way people talk"/>
-            <TextView
-                android:id="@+id/artist_title"
-                style="@style/TextAppearance.AppCompat.Caption"
-                android:layout_below="@id/track_title"
-                android:layout_toRightOf="@id/image_cover_small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:lines="1"
-                android:singleLine="true"
-                android:layout_marginTop="@dimen/padding_tiny"
-                android:layout_marginLeft="@dimen/padding_small"
-                android:layout_marginBottom="@dimen/padding_tiny"
-                tools:text="Taylor Swift"/>
-        </RelativeLayout>
-    </android.support.v7.widget.Toolbar>
+        android:layout_height="wrap_content">
+      <ImageView
+          android:id="@+id/image_cover_small"
+          android:layout_marginRight="@dimen/padding_tiny"
+          android:layout_marginTop="@dimen/padding_tiny"
+          android:layout_marginBottom="@dimen/padding_tiny"
+          android:layout_width="?attr/actionBarSize"
+          android:layout_centerVertical="true"
+          android:layout_height="?attr/actionBarSize"
+          android:scaleType="center"
+          tools:src="@drawable/placeholder"/>
+      <TextView
+          android:id="@+id/track_title"
+          style="@style/TextAppearance.AppCompat.Body1"
+          android:layout_alignParentTop="true"
+          android:layout_toRightOf="@id/image_cover_small"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:lines="1"
+          android:singleLine="true"
+          android:layout_marginTop="@dimen/padding_small"
+          android:layout_marginLeft="@dimen/padding_small"
+          tools:text="The way people talk"/>
+      <TextView
+          android:id="@+id/artist_title"
+          style="@style/TextAppearance.AppCompat.Caption"
+          android:layout_below="@id/track_title"
+          android:layout_toRightOf="@id/image_cover_small"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:lines="1"
+          android:singleLine="true"
+          android:layout_marginTop="@dimen/padding_tiny"
+          android:layout_marginLeft="@dimen/padding_small"
+          android:layout_marginBottom="@dimen/padding_tiny"
+          tools:text="Taylor Swift"/>
+    </RelativeLayout>
+  </android.support.v7.widget.Toolbar>
 </RelativeLayout>

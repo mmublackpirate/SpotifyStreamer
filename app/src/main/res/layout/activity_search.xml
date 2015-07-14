@@ -5,26 +5,26 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <include layout="@layout/search_toolbar"/>
-    <FrameLayout
+  <include layout="@layout/search_toolbar"/>
+  <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/artist_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/artist_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"/>
-        <ProgressBar
-            android:id="@+id/search_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-      <TextView
-          android:id="@+id/empty_view"
-          style="@style/TextAppearance.AppCompat.Subhead"
-          android:layout_gravity="center"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          tools:text = "Artist not found"/>
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
+    <ProgressBar
+        android:id="@+id/search_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+    <TextView
+        android:id="@+id/empty_view"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Artist not found"/>
+  </FrameLayout>
 </LinearLayout>

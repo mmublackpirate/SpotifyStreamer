@@ -15,5 +15,4 @@ public class ProgressViewHolder extends RecyclerView.ViewHolder {
     super(itemView);
     progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
   }
-
 }

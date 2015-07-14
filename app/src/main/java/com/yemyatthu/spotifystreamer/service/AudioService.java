@@ -1,16 +1,23 @@
 package com.yemyatthu.spotifystreamer.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.widget.RemoteViews;
+import com.yemyatthu.spotifystreamer.Config;
 import com.yemyatthu.spotifystreamer.R;
+import com.yemyatthu.spotifystreamer.util.NotificationUtils;
 import java.io.IOException;
+import java.util.List;
+import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by yemyatthu on 6/10/15.
@@ -19,45 +26,57 @@ public class AudioService extends Service
     implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
     MediaPlayer.OnPreparedListener {
   private static final int NOTIFY_ID = 1;
-  private static final int PLAY_NOTI_REQUEST = 1000;
-  private static final int QUIT_NOTI_REQUEST = 1001;
-  private static final String QUIT_FILTER = "quit_filter";
-  private static final String PLAY_FILTER = "play_filter";
+  private static AudioService instance = null;
   private final IBinder audioBind = new AudioBinder();
   private MediaPlayer mediaPlayer;
   private String url;
-
- private final BroadcastReceiver quitReceiver = new BroadcastReceiver() {
+  private RemoteViews remoteView;
+  private Track currentTrack = null;
+  private int position;
+  private List<Track> tracks;
+  private boolean isTablet;
+  private Notification not;
+  private NotificationManager notManager;
+  private final BroadcastReceiver quitReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
-      if (intent.getAction().equals(QUIT_FILTER)) {
-        stopForeground(true);
-        mediaPlayer.stop();
-        mediaPlayer.release();
-        mediaPlayer = null;
-        stopSelf();
-      } else if (intent.getAction().equals(PLAY_FILTER)) {
+      if (intent.getAction().equals(Config.QUIT_FILTER)) {
+        onDestroy();
+        //Send message to player fragment to kill itself
+        sendBroadcast(new Intent(Config.QUIT_SELF));
+      } else if (intent.getAction().equals(Config.NOTI_PRESS_PLAY_FILTER)) {
         if (isPng()) {
           pausePlayer();
         } else {
           go();
         }
+      } else if (intent.getAction().equals(Config.NEXT_FILTER)) {
+        playNextSong();
+      } else if (intent.getAction().equals(Config.PREV_FILTER)) {
+        playPrevSong();
       }
     }
   };
-
-  public String getUrl(){
-    return this.url;
-  }
-  private RemoteViews remoteView;
-
-  private static AudioService instance = null;
 
   public static boolean isInstanceCreated() {
     return instance != null;
   }
 
-  public static AudioService getAudioService(){
+  public static AudioService getAudioService() {
     return instance;
+  }
+
+  public Track getCurrentTrack() {
+    return this.currentTrack;
+  }
+
+  @Override public int onStartCommand(Intent intent, int flags, int startId) {
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(Config.NOTI_PRESS_PLAY_FILTER);
+    intentFilter.addAction(Config.NEXT_FILTER);
+    intentFilter.addAction(Config.PREV_FILTER);
+    intentFilter.addAction(Config.QUIT_FILTER);
+    registerReceiver(quitReceiver, intentFilter);
+    return super.onStartCommand(intent, flags, startId);
   }
 
   @Override public void onCreate() {
@@ -65,58 +84,34 @@ public class AudioService extends Service
     instance = this;
     mediaPlayer = new MediaPlayer();
     initMusicPlayer();
-    //registerReceiver(quitReceiver, new IntentFilter(QUIT_FILTER));
-    //registerReceiver(quitReceiver, new IntentFilter(PLAY_FILTER));
+    isTablet = false;
+    notManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    sendBroadcast(new Intent(Config.SERVICE_STARTED));
   }
 
   @Override public void onCompletion(MediaPlayer mediaPlayer) {
     Intent completeIntent = new Intent();
-    completeIntent.setAction(getString(R.string.complete_filter));
+    completeIntent.setAction(Config.COMPLETE_FILTER);
     sendBroadcast(completeIntent);
-    //stopForeground(true);
+    stopForeground(true);
   }
 
   @Override public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
     this.mediaPlayer.reset();
     Intent errorIntent = new Intent();
-    errorIntent.setAction(getString(R.string.error_filter));
+    errorIntent.setAction(Config.ERROR_FILTER);
     sendBroadcast(errorIntent);
     return false;
   }
 
-
-
   @Override public void onPrepared(MediaPlayer mediaPlayer) {
     mediaPlayer.start();
     Intent intent = new Intent();
-    intent.setAction(getString(R.string.prepare_filter));
+    intent.setAction(Config.PREPARE_FILTER);
     sendBroadcast(intent);
-    //Intent notIntent = new Intent(this, MyBooksActivity.class);
-    //notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    //PendingIntent pendingIntent =
-    //    PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-    //
-    //remoteView = new RemoteViews(getPackageName(), R.layout.audio_noti);
-    //remoteView.setTextViewText(R.id.song_title_noti, book.getName());
-    //Intent quitIntent = new Intent(QUIT_FILTER);
-    //PendingIntent quitPendingIntent =
-    //    PendingIntent.getBroadcast(this, QUIT_NOTI_REQUEST, quitIntent,
-    //        PendingIntent.FLAG_CANCEL_CURRENT);
-    //
-    //Intent playIntent = new Intent(PLAY_FILTER);
-    //PendingIntent playPendingIntent =
-    //    PendingIntent.getBroadcast(this, PLAY_NOTI_REQUEST, playIntent,
-    //        PendingIntent.FLAG_UPDATE_CURRENT);
-    //remoteView.setOnClickPendingIntent(R.id.play_noti, playPendingIntent);
-    //remoteView.setOnClickPendingIntent(R.id.quit_noti, quitPendingIntent);
-    //NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-    //builder.setContentIntent(pendingIntent)
-    //    .setSmallIcon(R.mipmap.ic_launcher)
-    //    .setOngoing(true)
-    //    .setTicker(book.getName())
-    //    .setContent(remoteView);
-    //Notification not = builder.build();
-    //startForeground(NOTIFY_ID, not);
+    remoteView = new RemoteViews(getPackageName(), R.layout.noti_music_player);
+    not = NotificationUtils.buildNotiForAudiService(remoteView, currentTrack, this);
+    startForeground(NOTIFY_ID, not);
   }
 
   @Override public IBinder onBind(Intent intent) {
@@ -125,22 +120,23 @@ public class AudioService extends Service
 
   @Override public boolean onUnbind(Intent intent) {
     // if music is not playing, destroy it.
-    if(!mediaPlayer.isPlaying()){
-      onDestroy();
-    }
     return true;
   }
 
   @Override public void onDestroy() {
     super.onDestroy();
     stopSelf();
-    //stopForeground(true);
+    stopForeground(true);
     if (mediaPlayer != null) {
       mediaPlayer.release();
       mediaPlayer = null;
     }
     instance = null;
-    //unregisterReceiver(quitReceiver);
+    try {
+      unregisterReceiver(quitReceiver);
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
+    }
   }
 
   public void initMusicPlayer() {
@@ -151,45 +147,46 @@ public class AudioService extends Service
     mediaPlayer.setOnErrorListener(this);
   }
 
-  public void playSong(String url) {
-    if(url==null || url.length()==0 ){
+  public void playNextSong() {
+    if (position + 1 < tracks.size()) {
+      position++;
+      playSong(tracks, position);
+    }
+  }
+
+  public void playPrevSong() {
+    if (!(position - 1 <= 0)) {
+      position--;
+      playSong(tracks, position);
+    }
+  }
+
+  public void setMode(boolean isTablet) {
+    this.isTablet = isTablet;
+  }
+
+  public void playSong(List<Track> tracks, int position) {
+    this.position = position;
+    this.tracks = tracks;
+    currentTrack = tracks.get(position);
+    url = currentTrack.preview_url;
+    if (url == null || url.length() == 0) {
       return;
     }
-    this.url = url;
     //play a song
-    if (mediaPlayer == null) {
-      mediaPlayer = new MediaPlayer();
-      initMusicPlayer();
-    } else {
-      if(mediaPlayer.isPlaying()){
-        mediaPlayer.stop();
-
-        /*** Only resetting, without releasing and starting a new media player,
-         * This error occurred on my two test devices - both from Xiaomi
-         * But working fine in emulator
-         * Not sure because of MIUI bug or App bug.
-         *
-         *   MediaPlayer
-         *   error (-38, 0)
-         *   Error (-38,0)
-         *   error (1, -107)
-         *
-         ***/
-
-        mediaPlayer.release();
-        mediaPlayer = new MediaPlayer();
-        initMusicPlayer();
-      }else {
-        mediaPlayer.reset();
-      }
+    if (mediaPlayer != null) {
+      mediaPlayer.release();
+      mediaPlayer = null;
     }
+    mediaPlayer = new MediaPlayer();
+    initMusicPlayer();
     try {
       mediaPlayer.setDataSource(url);
     } catch (IOException e) {
       e.printStackTrace();
     }
     Intent intent = new Intent();
-    intent.setAction(getString(R.string.play_song));
+    intent.setAction(Config.PLAY_SONG_FILTER);
     sendBroadcast(intent);
     mediaPlayer.prepareAsync();
   }
@@ -208,6 +205,10 @@ public class AudioService extends Service
 
   public void pausePlayer() {
     mediaPlayer.pause();
+    remoteView.setImageViewResource(R.id.play_pause_btn_noti,
+        R.drawable.ic_play_circle_fill_grey600_48dp);
+    not.contentView = remoteView;
+    notManager.notify(NOTIFY_ID, not);
   }
 
   public void seek(int posn) {
@@ -215,6 +216,10 @@ public class AudioService extends Service
   }
 
   public void go() {
+    remoteView.setImageViewResource(R.id.play_pause_btn_noti,
+        R.drawable.ic_pause_circle_fill_grey600_48dp);
+    not.contentView = remoteView;
+    notManager.notify(NOTIFY_ID, not);
     mediaPlayer.start();
   }
 
