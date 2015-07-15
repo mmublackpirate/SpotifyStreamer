@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -140,10 +139,7 @@ public class SearchActivity extends AppCompatActivity
         spotify.searchArtists(s, new Callback<ArtistsPager>() {
           @Override public void success(final ArtistsPager artistsPager, final Response response) {
             //return search is not the same is query search
-            Log.d("return","return");
-            Log.d("query",searchView.getQuery().toString());
-            Log.d("s", s);
-            if(!s.contains(searchView.getQuery().toString())|| searchView.getQuery().length()<=0){ // Oops Check for current and submitted query
+            if(!s.equals(searchView.getQuery().toString())|| searchView.getQuery().length()<=0){
               return;
             }
             runOnUiThread(new Runnable() {
