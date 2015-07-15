@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -28,12 +27,13 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.yemyatthu.spotifystreamer.service.AudioService;
 import com.yemyatthu.spotifystreamer.util.FileUtils;
 import com.yemyatthu.spotifystreamer.util.GeneralUtils;
 import com.yemyatthu.spotifystreamer.util.SharePrefUtils;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -72,7 +72,6 @@ public class MusicPlayerFragment extends DialogFragment
   private List<Track> tracks;
   private boolean isTablet;
   private Track localTrack;
-  private BitmapAsyncTask bitmapTask;
 
   public MusicPlayerFragment() {
 
@@ -286,8 +285,26 @@ public class MusicPlayerFragment extends DialogFragment
     for (ArtistSimple artist : track.artists) {
       artistTitleTv.append(artist.name + " ");
     }
-    bitmapTask = new BitmapAsyncTask(MusicPlayerFragment.this);
-    bitmapTask.execute(track.album.images.get(0).url); // Get the bitmap and color the toolbar.
+    Glide.with(this)
+        .load(track.album.images.get(0).url)
+        .asBitmap()
+        .into(new SimpleTarget<Bitmap>() {
+          @Override public void onResourceReady(Bitmap resource,
+              GlideAnimation<? super Bitmap> glideAnimation) {
+            if (resource != null) {
+              SharePrefUtils.getInstance(activity)
+                  .saveCurrentTrackImage(GeneralUtils.convertBitmapToBase64(
+                      resource)); // Save the bitmap for later useimageCoverSmall.setImageBitmap(bitmap);
+              imageCoverSmall.setImageBitmap(resource);
+              imageCoverBig.setImageBitmap(resource);
+              int bgColor = Palette.generate(resource).getDarkMutedColor(R.color.primaryColor);
+              playerToolbar.setBackgroundColor(bgColor);
+              playerControlContainer.setBackgroundColor(bgColor);
+            }
+            actionBar.show();
+            playerControlContainer.setVisibility(View.VISIBLE);
+          }
+        });
     albumTitlePlayerTv.setText(track.album.name);
     trackTitlePlayerTv.setText(track.name);
   }
@@ -329,50 +346,6 @@ public class MusicPlayerFragment extends DialogFragment
         audioService = AudioService.getAudioService();
         playSongFromUrl();
       }
-    }
-  }
-
-  class BitmapAsyncTask extends AsyncTask<String, Void, Bitmap> {
-    android.support.v4.app.DialogFragment fragment;
-
-    public BitmapAsyncTask(android.support.v4.app.DialogFragment fragment) {
-      this.fragment = fragment;
-    }
-
-    @Override protected Bitmap doInBackground(String... urls) {
-      try {
-        Bitmap bitmap = Glide.with(fragment).load(urls[0]).asBitmap().into(-1, -1).get();
-        //Log.d("image64",GeneralUtils.convertBitmapToBase64(bitmap));
-        //SharePrefUtils.getInstance(activity).saveCurrentTrackImage(
-        //    GeneralUtils.convertBitmapToBase64(bitmap)); // Save the bitmap for later use
-        return bitmap;
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-        return null;
-      }
-    }
-
-    @Override protected void onPostExecute(Bitmap bitmap) {
-      super.onPostExecute(bitmap);
-      if (bitmap != null) {
-        SharePrefUtils.getInstance(activity)
-            .saveCurrentTrackImage(GeneralUtils.convertBitmapToBase64(
-                bitmap)); // Save the bitmap for later useimageCoverSmall.setImageBitmap(bitmap);
-        imageCoverSmall.setImageBitmap(bitmap);
-        imageCoverBig.setImageBitmap(bitmap);
-        int bgColor = Palette.generate(bitmap).getDarkMutedColor(R.color.primaryColor);
-        playerToolbar.setBackgroundColor(bgColor);
-        playerControlContainer.setBackgroundColor(bgColor);
-      }
-      actionBar.show();
-      playerControlContainer.setVisibility(View.VISIBLE);
-    }
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    if(bitmapTask!=null && !bitmapTask.isCancelled()){
-      bitmapTask.cancel(true);
     }
   }
 }
