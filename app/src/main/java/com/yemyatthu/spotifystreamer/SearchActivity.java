@@ -54,6 +54,7 @@ public class SearchActivity extends AppCompatActivity
   private boolean isTablet;
   private TopTracksFragment topTracksFragment;
   private String latestSearch;
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_search);
@@ -139,7 +140,8 @@ public class SearchActivity extends AppCompatActivity
         spotify.searchArtists(s, new Callback<ArtistsPager>() {
           @Override public void success(final ArtistsPager artistsPager, final Response response) {
             //return search is not the same is query search
-            if(!s.equals(searchView.getQuery().toString())|| searchView.getQuery().length()<=0){
+            if (!s.equals(searchView.getQuery().toString())
+                || searchView.getQuery().length() <= 0) {
               return;
             }
             runOnUiThread(new Runnable() {
@@ -238,7 +240,7 @@ public class SearchActivity extends AppCompatActivity
     artistListStateFragment.setCheckPosition(artistSearchAdapter.getCheckItem());
   }
 
-  private void clearFragment(){
+  private void clearFragment() {
     topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
     getSupportFragmentManager().beginTransaction()
         .replace(R.id.search_container, topTracksFragment)
