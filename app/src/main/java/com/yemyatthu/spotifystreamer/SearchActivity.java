@@ -62,11 +62,9 @@ public class SearchActivity extends AppCompatActivity
     setSupportActionBar(toolbar);
     if (searchContainer != null) {
       isTablet = true;
-
       //if its' tablet, add a dummy fragment to it.
       topTracksFragment =
           (TopTracksFragment) getSupportFragmentManager().findFragmentById(R.id.search_container);
-
       if (topTracksFragment == null) {
         topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
         getSupportFragmentManager().beginTransaction()
@@ -117,10 +115,11 @@ public class SearchActivity extends AppCompatActivity
       artistRecyclerView.setVisibility(View.GONE);
       searchProgressBar.setVisibility(View.GONE);
       emptyText.setText(R.string.search_first_time);
-      clearFragment();
+      if(isTablet) {
+        clearFragment();
+      }
     } else {
-      artistRecyclerView.addOnScrollListener(
-          getScrollListener()); //For some reason,Scroll Listener remove everytime the query changed
+      artistRecyclerView.addOnScrollListener(getScrollListener()); //For some reason,Scroll Listener remove everytime the query changed
       queryStr = s;
       emptyText.setText("");
       if (artistListStateFragment.getArtists() != null
@@ -135,7 +134,9 @@ public class SearchActivity extends AppCompatActivity
         artistSearchAdapter.setCheckedItem(artistListStateFragment.getCheckPosition());
         artistListStateFragment.clearArtists(); // clear data from headless fragments so that configuration changes and normal query changes don't mix
       } else {
-        clearFragment();
+        if(isTablet) {
+          clearFragment();
+        }
         searchProgressBar.setVisibility(View.VISIBLE);
         spotify.searchArtists(s, new Callback<ArtistsPager>() {
           @Override public void success(final ArtistsPager artistsPager, final Response response) {
