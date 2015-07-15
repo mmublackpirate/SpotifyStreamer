@@ -117,10 +117,7 @@ public class SearchActivity extends AppCompatActivity
       artistRecyclerView.setVisibility(View.GONE);
       searchProgressBar.setVisibility(View.GONE);
       emptyText.setText(R.string.search_first_time);
-      topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
-      getSupportFragmentManager().beginTransaction()
-          .replace(R.id.search_container, topTracksFragment)
-          .commit();
+      clearFragment();
     } else {
       artistRecyclerView.addOnScrollListener(
           getScrollListener()); //For some reason,Scroll Listener remove everytime the query changed
@@ -138,7 +135,7 @@ public class SearchActivity extends AppCompatActivity
         artistSearchAdapter.setCheckedItem(artistListStateFragment.getCheckPosition());
         artistListStateFragment.clearArtists(); // clear data from headless fragments so that configuration changes and normal query changes don't mix
       } else {
-
+        clearFragment();
         searchProgressBar.setVisibility(View.VISIBLE);
         spotify.searchArtists(s, new Callback<ArtistsPager>() {
           @Override public void success(final ArtistsPager artistsPager, final Response response) {
@@ -146,7 +143,7 @@ public class SearchActivity extends AppCompatActivity
             Log.d("return","return");
             Log.d("query",searchView.getQuery().toString());
             Log.d("s", s);
-            if(!s.contains(searchView.getQuery().toString())){
+            if(!s.contains(searchView.getQuery().toString())|| searchView.getQuery().length()<=0){ // Oops Check for current and submitted query
               return;
             }
             runOnUiThread(new Runnable() {
@@ -156,10 +153,6 @@ public class SearchActivity extends AppCompatActivity
                 if (results.artists.items.size() == 0) {
                   artistRecyclerView.setVisibility(View.GONE);
                   emptyText.setText(getString(R.string.search_not_found));
-                  topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
-                  getSupportFragmentManager().beginTransaction()
-                      .replace(R.id.search_container, topTracksFragment)
-                      .commit();
                 } else {
                   emptyText.setText("");
                   totalArtists.addAll(results.artists.items);
@@ -247,5 +240,12 @@ public class SearchActivity extends AppCompatActivity
     artistListStateFragment.setLastScrollPosition(
         ((LinearLayoutManager) artistRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition());
     artistListStateFragment.setCheckPosition(artistSearchAdapter.getCheckItem());
+  }
+
+  private void clearFragment(){
+    topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
+    getSupportFragmentManager().beginTransaction()
+        .replace(R.id.search_container, topTracksFragment)
+        .commit();
   }
 }
