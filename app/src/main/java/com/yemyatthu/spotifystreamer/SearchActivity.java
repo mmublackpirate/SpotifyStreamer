@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -53,7 +54,7 @@ public class SearchActivity extends AppCompatActivity
   private ArtistListStateFragment artistListStateFragment;
   private boolean isTablet;
   private TopTracksFragment topTracksFragment;
-
+  private String latestSearch;
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_search);
@@ -102,15 +103,13 @@ public class SearchActivity extends AppCompatActivity
   }
 
   @Override public boolean onQueryTextSubmit(String s) {
-    return false;
+    return true;
   }
 
-  @Override public boolean onQueryTextChange(String s) {
+  @Override public boolean onQueryTextChange(final String s) {
     offset = 0; // offset = 0 means first page
-
     totalArtists.clear(); // clear total artists and adapter items so that they don't mix with the previous queries
     artistSearchAdapter.clear();
-
     artistSearchAdapter.toogleProgressBarVisibilty(
         true); //Show Loading Again, incase user scroll it to the end before the query change
 
@@ -118,6 +117,10 @@ public class SearchActivity extends AppCompatActivity
       artistRecyclerView.setVisibility(View.GONE);
       searchProgressBar.setVisibility(View.GONE);
       emptyText.setText(R.string.search_first_time);
+      topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
+      getSupportFragmentManager().beginTransaction()
+          .replace(R.id.search_container, topTracksFragment)
+          .commit();
     } else {
       artistRecyclerView.addOnScrollListener(
           getScrollListener()); //For some reason,Scroll Listener remove everytime the query changed
@@ -139,6 +142,13 @@ public class SearchActivity extends AppCompatActivity
         searchProgressBar.setVisibility(View.VISIBLE);
         spotify.searchArtists(s, new Callback<ArtistsPager>() {
           @Override public void success(final ArtistsPager artistsPager, final Response response) {
+            //return search is not the same is query search
+            Log.d("return","return");
+            Log.d("query",searchView.getQuery().toString());
+            Log.d("s", s);
+            if(!s.contains(searchView.getQuery().toString())){
+              return;
+            }
             runOnUiThread(new Runnable() {
               @Override public void run() {
                 searchProgressBar.setVisibility(View.GONE);
@@ -146,6 +156,10 @@ public class SearchActivity extends AppCompatActivity
                 if (results.artists.items.size() == 0) {
                   artistRecyclerView.setVisibility(View.GONE);
                   emptyText.setText(getString(R.string.search_not_found));
+                  topTracksFragment = TopTracksFragment.getNewInstance("", "", true);
+                  getSupportFragmentManager().beginTransaction()
+                      .replace(R.id.search_container, topTracksFragment)
+                      .commit();
                 } else {
                   emptyText.setText("");
                   totalArtists.addAll(results.artists.items);
@@ -175,7 +189,6 @@ public class SearchActivity extends AppCompatActivity
         });
       }
     }
-
     return true;
   }
 
