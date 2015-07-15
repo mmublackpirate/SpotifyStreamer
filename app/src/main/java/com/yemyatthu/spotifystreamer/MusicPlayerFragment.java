@@ -72,6 +72,7 @@ public class MusicPlayerFragment extends DialogFragment
   private List<Track> tracks;
   private boolean isTablet;
   private Track localTrack;
+  private BitmapAsyncTask bitmapTask;
 
   public MusicPlayerFragment() {
 
@@ -285,8 +286,8 @@ public class MusicPlayerFragment extends DialogFragment
     for (ArtistSimple artist : track.artists) {
       artistTitleTv.append(artist.name + " ");
     }
-    new BitmapAsyncTask(MusicPlayerFragment.this).execute(
-        track.album.images.get(0).url); // Get the bitmap and color the toolbar.
+    bitmapTask = new BitmapAsyncTask(MusicPlayerFragment.this);
+    bitmapTask.execute(track.album.images.get(0).url); // Get the bitmap and color the toolbar.
     albumTitlePlayerTv.setText(track.album.name);
     trackTitlePlayerTv.setText(track.name);
   }
@@ -365,6 +366,13 @@ public class MusicPlayerFragment extends DialogFragment
       }
       actionBar.show();
       playerControlContainer.setVisibility(View.VISIBLE);
+    }
+  }
+
+  @Override public void onDetach() {
+    super.onDetach();
+    if(bitmapTask!=null && !bitmapTask.isCancelled()){
+      bitmapTask.cancel(true);
     }
   }
 }
