@@ -224,6 +224,7 @@ public class MusicPlayerFragment extends DialogFragment
     filter.addAction(Config.PLAY_SONG_FILTER);
     filter.addAction(Config.QUIT_SELF);
     filter.addAction(Config.SERVICE_STARTED);
+    filter.addAction(Config.COMPLETE_FILTER);
     filter.addAction(Config.NOTI_PRESS_PLAY_FILTER);
     activity.registerReceiver(mediaPreparedReceiver, filter);
 
@@ -237,6 +238,9 @@ public class MusicPlayerFragment extends DialogFragment
       if (audioService.getCurrentTrack() == null || !localTrack.preview_url.equals(audioService.getCurrentTrack().preview_url)) {
         audioService.onDestroy();
         audioService.startService(playIntent);
+      }else{
+        doUiThings(audioService.getCurrentTrack());
+        playSongFromUrl();
       }
     }
   }
