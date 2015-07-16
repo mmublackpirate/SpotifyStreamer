@@ -234,9 +234,10 @@ public class MusicPlayerFragment extends DialogFragment
       activity.startService(playIntent);
     } else {
       audioService = AudioService.getAudioService();
-      playSongFromUrl();
-      doUiThings(localTrack);
-      updateSeekBar();
+      if (audioService.getCurrentTrack() == null || !localTrack.preview_url.equals(audioService.getCurrentTrack().preview_url)) {
+        audioService.onDestroy();
+        audioService.startService(playIntent);
+      }
     }
   }
 
@@ -294,7 +295,7 @@ public class MusicPlayerFragment extends DialogFragment
             if (resource != null) {
               SharePrefUtils.getInstance(activity)
                   .saveCurrentTrackImage(GeneralUtils.convertBitmapToBase64(
-                      resource)); // Save the bitmap for later useimageCoverSmall.setImageBitmap(bitmap);
+                      resource));
               imageCoverSmall.setImageBitmap(resource);
               imageCoverBig.setImageBitmap(resource);
               int bgColor = Palette.generate(resource).getDarkMutedColor(R.color.primaryColor);
@@ -346,6 +347,13 @@ public class MusicPlayerFragment extends DialogFragment
         audioService = AudioService.getAudioService();
         playSongFromUrl();
       }
+    }
+  }
+
+  @Override public void onDetach() {
+    super.onDetach();
+    if(!isPlaying()){
+      audioService.onDestroy();
     }
   }
 }

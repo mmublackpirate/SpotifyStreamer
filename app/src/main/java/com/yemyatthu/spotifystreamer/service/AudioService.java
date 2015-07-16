@@ -82,8 +82,6 @@ public class AudioService extends Service
   @Override public void onCreate() {
     super.onCreate();
     instance = this;
-    mediaPlayer = new MediaPlayer();
-    initMusicPlayer();
     isTablet = false;
     notManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     sendBroadcast(new Intent(Config.SERVICE_STARTED));
@@ -175,11 +173,15 @@ public class AudioService extends Service
     }
     //play a song
     if (mediaPlayer != null) {
+      if (mediaPlayer.isPlaying()) {
+        mediaPlayer.stop();
+      }
       mediaPlayer.release();
       mediaPlayer = null;
     }
-    mediaPlayer = new MediaPlayer();
-    initMusicPlayer();
+      mediaPlayer = new MediaPlayer();
+      initMusicPlayer();
+
     try {
       mediaPlayer.setDataSource(url);
     } catch (IOException e) {
