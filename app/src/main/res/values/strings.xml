@@ -6,6 +6,6 @@
   <string name="search_not_found">No Artist Found. Refine Your Search</string>
   <string name="error_try_again">An error occurred. Try again later</string>
   <string name="top_tracks_empty">No top tracks for selected artist</string>
-  <string name="R.string.error_music_play">Can\'t play the requested music</string>
+  <string name="error_music_play">Can\'t play the requested music</string>
   <string name="menu_share">Share</string>
 </resources>
